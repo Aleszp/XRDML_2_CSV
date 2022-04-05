@@ -50,3 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+#bin directory and it's content
+bin/*
+xrdml2csv

@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version alpha-1.4
+ * version alpha-1.5
  */ 
 
 #include <stdio.h>
@@ -44,6 +44,7 @@ int main(int argc, char** argv)
 	//prepare input buffer
 	char buffer[255];
 	char* ptr;
+	char separator=',';
 	
 	long double start,stop;
 	while(!feof(fileIn))
@@ -100,7 +101,7 @@ int main(int argc, char** argv)
 	//after this - rewind file to start of data
 	fseek(fileIn, offset, SEEK_SET);
 	//Print header in output file. Use CR+LF for widest OS support
-	fprintf(fileOut,"2theta,intensity,\ndegree,a.u.,\r\n");
+	fprintf(fileOut,"2theta%cintensity%c\ndegree%ccounts%c\r\n",separator,separator,separator,separator);
 	long double Dtheta=(stop-start)/((long double) count);
 	
 	//While looping: count lines, if EOF detected - stop
@@ -108,7 +109,7 @@ int main(int argc, char** argv)
 	{
 		//Print single line:
 		//Print angle with 0.8Lf precision 
-		fprintf(fileOut,"%0.8Lf,",start+((long double)ii)*Dtheta);
+		fprintf(fileOut,"%0.8Lf%c",start+((long double)ii)*Dtheta,separator);
 		do
 		{
 			//Just copy values from input (to avoid unnecessary conversion losses)
@@ -130,7 +131,7 @@ int main(int argc, char** argv)
 			break;
 		}
 		//Add end of line (CR+LF for wide OS support)
-		fprintf(fileOut,",\r\n");
+		fprintf(fileOut,"%c\r\n",separator);
 	}
 	
 	//Close input and output files
