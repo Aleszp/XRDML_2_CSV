@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version alpha-1.1
+ * version alpha-1.5
  */ 
 
 #include <stdio.h>
@@ -15,108 +15,132 @@ void GPLnotice();
 
 int main(int argc, char** argv)
 {
-	void GPLnotice();
+	//Print notice about GPL
+	if(1)
+	{
+		GPLnotice();
+	}
+	//If there is wrong number of arguments: inform user and terminate.
 	if(argc!=3)
 	{
-		fprintf(stderr,"Nieprawidłowa liczba argumentów. Składnia: xrdml2xy [plikwe] [plikwy].\n");
+		fprintf(stderr,"Incorrect number of arguments. %d used, should be %d.\n. Correct use: xrdml2xy [input_path/file.xrdml] [output_path/file.csv].\n", argc-1, 2);
 		return 1;
 	}
-	FILE* plikWe=fopen(argv[1],"r");
-	if(!plikWe)
+	//Open intput file for reading
+	FILE* fileIn=fopen(argv[1],"r");
+	if(!fileIn)
 	{
-		fprintf(stderr,"Błąd otwarcia pliku do odczytu: %s\n",argv[1]);
+		//Open intput file for reading
+		fprintf(stderr,"Could not open file for reading: %s\n",argv[1]);
 		return 2;
 	}
-	FILE* plikWy=fopen(argv[2],"w");
-	if(!plikWy)
+	//Open intput file for writting
+	FILE* fileOut=fopen(argv[2],"w");
+	if(!fileOut)
 	{
-		fprintf(stderr,"Błąd otwarcia pliku do zapisu: %s\n",argv[2]);
+		fprintf(stderr,"Could not open file for writting: %s\n",argv[2]);
 		return 3;
 	}
-	char bufor[255];
-	char* wsk;
+	//prepare input buffer
+	char buffer[255];
+	char* ptr;
+	char separator=',';
 	
 	long double start,stop;
-	while(!feof(plikWe))
+	while(!feof(fileIn))
 	{
-		//pomiń nagłówek aż do kątów
-		fgets(bufor,255,plikWe);
-		wsk=strstr(bufor,"<startPosition>");
-		if(wsk!=NULL)
+		//skip unused header data (before angle info)
+		fgets(buffer,255,fileIn);
+		ptr=strstr(buffer,"<startPosition>");
+		if(ptr!=NULL)
 		{
 			break;
 		}
 	}
-	sscanf(wsk+15,"%Lf",&start);
-	fgets(bufor,255,plikWe);
-	wsk=strstr(bufor,"<endPosition>");
-	sscanf(wsk+13,"%Lf",&stop);
+	//
+	sscanf(ptr+15,"%Lf",&start);
+	fgets(buffer,255,fileIn);
+	ptr=strstr(buffer,"<endPosition>");
+	sscanf(ptr+13,"%Lf",&stop);
 	
 	long offset;
 	
-	while(!feof(plikWe))
+	while(!feof(fileIn))
 	{
-		//pomiń nagłówek aż do danych
-		//zachowaj położenie
-		offset = ftell(plikWe);
-		fgets(bufor,255,plikWe);
-		wsk=strstr(bufor,"<intensities ");
-		if(wsk!=NULL)
+		//skip rest of header to find start of data
+		//save offset
+		offset = ftell(fileIn);
+		fgets(buffer,255,fileIn);
+		ptr=strstr(buffer,"<intensities ");
+		if(ptr!=NULL)
 		{
-			fseek(plikWe, offset, SEEK_SET);
-			fgets(bufor,32,plikWe);
+			fseek(fileIn, offset, SEEK_SET);
+			fgets(buffer,32,fileIn);
 			break;
 		}
 	}
-	char c;
-	//zachowaj położenie pliku (do przewinięcia)
-	offset = ftell(plikWe);
-	uint64_t liczba=0;
-	//Zlicz ilość kątów by policzyć przyrost (z pliku xrdml znamy kąt początkowy i końcowy, krok w pliku xrdml jest zbyt zaokrąglony)
+	char character;
+	//save offset for further rewind
+	offset = ftell(fileIn);
+	uint64_t count=0;
+	//Count number of individual angles to calculate single step difference (in .xrdml we get accurate initial and final angle data, single step info is too roughly rounded)
 	do
 	{
-		c=fgetc(plikWe);
-		if(c==' ')
+		character=fgetc(fileIn);
+		if(character==' ')
 		{
-			liczba++;
+			count++;
 		}
-		if(feof(plikWe))
+		if(feof(fileIn))
 		{
 			break;
 		}
 	}
-	while(c!='<');	
+	while(character!='<');	
 	
-	fseek(plikWe, offset, SEEK_SET);
+	//after this - rewind file to start of data
+	fseek(fileIn, offset, SEEK_SET);
+	//Print header in output file. Use CR+LF for widest OS support
+	fprintf(fileOut,"2theta%cintensity%c\ndegree%ccounts%c\r\n",separator,separator,separator,separator);
+	long double Dtheta=(stop-start)/((long double) count);
 	
-	fprintf(plikWy,"2theta,intensity,\ndegree,a.u.,\r\n");
-	long double Dtheta=(stop-start)/((long double) liczba);
-	printf("Dtheta=%Lf\n",Dtheta);
-	for(uint64_t ii=0;!feof(plikWe);ii++)
+	//While looping: count lines, if EOF detected - stop
+	for(uint64_t ii=0;!feof(fileIn);ii++)
 	{
-		fprintf(plikWy,"%0.8Lf,",start+((long double)ii)*Dtheta);
+		//Print single line:
+		//Print angle with 0.8Lf precision 
+		fprintf(fileOut,"%0.8Lf%c",start+((long double)ii)*Dtheta,separator);
 		do
 		{
-			c=fgetc(plikWe);
-			if(c=='<'||c==' ')
+			//Just copy values from input (to avoid unnecessary conversion losses)
+			character=fgetc(fileIn);
+			//Space ' ' is separator between measured data - start new datapoint upon detection
+			//'<' is start of "</intensities>: it's end of data - break the loop
+			if(character=='<'||character==' ')
 			{
 				break;
 			}
-			fprintf(plikWy,"%c",c);
+			fprintf(fileOut,"%c",character);
+			//Space ' ' is separator between measured data - start new datapoint upon detection
 		}
-		while(c!=' ');
-		if(c=='<')
+		while(character!=' ');
+		
+		//If '<' - start of "</intensities> is found - it's end of data - break the loop
+		if(character=='<')
 		{
 			break;
 		}
-		fprintf(plikWy,",\r\n");
+		//Add end of line (CR+LF for wide OS support)
+		fprintf(fileOut,"%c\r\n",separator);
 	}
 	
-	fclose(plikWe);
-	fclose(plikWy);
+	//Close input and output files
+	fclose(fileIn);
+	fclose(fileOut);
 	return 0;
 }
 
+//Print GPL notice at startup
 void GPLnotice()
 {
 	fprintf(stdout,"XRDML_2_CSV, Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).\n\n");
