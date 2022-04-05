@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version alpha-1.2b
+ * version alpha-1.3
  */ 
 
 #include <stdio.h>
@@ -24,113 +24,115 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	//Open intput file for reading
-	FILE* plikWe=fopen(argv[1],"r");
-	if(!plikWe)
+	FILE* fileIn=fopen(argv[1],"r");
+	if(!fileIn)
 	{
 		//Open intput file for reading
 		fprintf(stderr,"Could not open file for reading: %s\n",argv[1]);
 		return 2;
 	}
 	//Open intput file for writting
-	FILE* plikWy=fopen(argv[2],"w");
-	if(!plikWy)
+	FILE* fileOut=fopen(argv[2],"w");
+	if(!fileOut)
 	{
 		fprintf(stderr,"Could not open file for writting: %s\n",argv[2]);
 		return 3;
 	}
 	//prepare input buffer
-	char bufor[255];
-	char* wsk;
+	char buffer[255];
+	char* ptr;
 	
 	long double start,stop;
-	while(!feof(plikWe))
+	while(!feof(fileIn))
 	{
 		//skip unused header data (before angle info)
-		fgets(bufor,255,plikWe);
-		wsk=strstr(bufor,"<startPosition>");
-		if(wsk!=NULL)
+		fgets(buffer,255,fileIn);
+		ptr=strstr(buffer,"<startPosition>");
+		if(ptr!=NULL)
 		{
 			break;
 		}
 	}
 	//
-	sscanf(wsk+15,"%Lf",&start);
-	fgets(bufor,255,plikWe);
-	wsk=strstr(bufor,"<endPosition>");
-	sscanf(wsk+13,"%Lf",&stop);
+	sscanf(ptr+15,"%Lf",&start);
+	fgets(buffer,255,fileIn);
+	ptr=strstr(buffer,"<endPosition>");
+	sscanf(ptr+13,"%Lf",&stop);
 	
 	long offset;
 	
-	while(!feof(plikWe))
+	while(!feof(fileIn))
 	{
 		//skip rest of header to find start of data
 		//save offset
-		offset = ftell(plikWe);
-		fgets(bufor,255,plikWe);
-		wsk=strstr(bufor,"<intensities ");
-		if(wsk!=NULL)
+		offset = ftell(fileIn);
+		fgets(buffer,255,fileIn);
+		ptr=strstr(buffer,"<intensities ");
+		if(ptr!=NULL)
 		{
-			fseek(plikWe, offset, SEEK_SET);
-			fgets(bufor,32,plikWe);
+			fseek(fileIn, offset, SEEK_SET);
+			fgets(buffer,32,fileIn);
 			break;
 		}
 	}
-	char c;
+	char character;
 	//save offset for further rewind
-	offset = ftell(plikWe);
-	uint64_t liczba=0;
+	offset = ftell(fileIn);
+	uint64_t count=0;
 	//Count number of individual angles to calculate single step difference (in .xrdml we get accurate initial and final angle data, single step info is too roughly rounded)
 	do
 	{
-		c=fgetc(plikWe);
-		if(c==' ')
+		character=fgetc(fileIn);
+		if(character==' ')
 		{
-			liczba++;
+			count++;
 		}
-		if(feof(plikWe))
+		if(feof(fileIn))
 		{
 			break;
 		}
 	}
-	while(c!='<');	
+	while(character!='<');	
 	
 	//after this - rewind file to start of data
-	fseek(plikWe, offset, SEEK_SET);
+	fseek(fileIn, offset, SEEK_SET);
 	//Print header in output file. Use CR+LF for widest OS support
-	fprintf(plikWy,"2theta,intensity,\ndegree,a.u.,\r\n");
-	long double Dtheta=(stop-start)/((long double) liczba);
+	fprintf(fileOut,"2theta,intensity,\ndegree,a.u.,\r\n");
+	long double Dtheta=(stop-start)/((long double) count);
 	
 	//While looping: count lines, if EOF detected - stop
-	for(uint64_t ii=0;!feof(plikWe);ii++)
+	for(uint64_t ii=0;!feof(fileIn);ii++)
 	{
 		//Print single line:
 		//Print angle with 0.8Lf precission 
-		fprintf(plikWy,"%0.8Lf,",start+((long double)ii)*Dtheta);
+		fprintf(fileOut,"%0.8Lf,",start+((long double)ii)*Dtheta);
 		do
 		{
 			//Just copy values from input (to avoid unnecessary conversion losses)
-			c=fgetc(plikWe);
-			if(c=='<'||c==' ')
+			character=fgetc(fileIn);
+			//Space ' ' is separator between measured data - start new datapoint upon detection
+			//'<' is start of "</intensities>: it's end of data - break the loop
+			if(character=='<'||character==' ')
 			{
 				break;
 			}
-			fprintf(plikWy,"%c",c);
+			fprintf(fileOut,"%c",character);
 			//Space ' ' is separator between measured data - start new datapoint upon detection
 		}
-		while(c!=' ');
+		while(character!=' ');
 		
 		//If '<' - start of "</intensities> is found - it's end of data - break the loop
-		if(c=='<')
+		if(character=='<')
 		{
 			break;
 		}
 		//Add end of line (CR+LF for wide OS support)
-		fprintf(plikWy,",\r\n");
+		fprintf(fileOut,",\r\n");
 	}
 	
 	//Close input and output files
-	fclose(plikWe);
-	fclose(plikWy);
+	fclose(fileIn);
+	fclose(fileOut);
 	return 0;
 }
 
