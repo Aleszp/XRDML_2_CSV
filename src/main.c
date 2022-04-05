@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version alpha-1.3
+ * version alpha-1.4
  */ 
 
 #include <stdio.h>
@@ -16,7 +16,10 @@ void GPLnotice();
 int main(int argc, char** argv)
 {
 	//Print notice about GPL
-	GPLnotice();
+	if(1)
+	{
+		GPLnotice();
+	}
 	//If there is wrong number of arguments: inform user and terminate.
 	if(argc!=3)
 	{
@@ -104,7 +107,7 @@ int main(int argc, char** argv)
 	for(uint64_t ii=0;!feof(fileIn);ii++)
 	{
 		//Print single line:
-		//Print angle with 0.8Lf precission 
+		//Print angle with 0.8Lf precision 
 		fprintf(fileOut,"%0.8Lf,",start+((long double)ii)*Dtheta);
 		do
 		{
