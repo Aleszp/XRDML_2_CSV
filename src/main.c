@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version alpha-1.2
+ * version alpha-1.2b
  */ 
 
 #include <stdio.h>
@@ -21,7 +21,6 @@ int main(int argc, char** argv)
 	if(argc!=3)
 	{
 		fprintf(stderr,"Incorrect number of arguments. %d used, should be %d.\n. Correct use: xrdml2xy [input_path/file.xrdml] [output_path/file.csv].\n", argc-1, 2);
-		//fprintf(stderr,"Nieprawidłowa liczba argumentów. Składnia: xrdml2xy [plikwe] [plikwy].\n");
 		return 1;
 	}
 	//Open intput file for reading
@@ -29,7 +28,6 @@ int main(int argc, char** argv)
 	if(!plikWe)
 	{
 		//Open intput file for reading
-		//fprintf(stderr,"Błąd otwarcia pliku do odczytu: %s\n",argv[1]);
 		fprintf(stderr,"Could not open file for reading: %s\n",argv[1]);
 		return 2;
 	}
@@ -38,7 +36,6 @@ int main(int argc, char** argv)
 	if(!plikWy)
 	{
 		fprintf(stderr,"Could not open file for writting: %s\n",argv[2]);
-		//fprintf(stderr,"Błąd otwarcia pliku do zapisu: %s\n",argv[2]);
 		return 3;
 	}
 	//prepare input buffer
@@ -102,8 +99,6 @@ int main(int argc, char** argv)
 	//Print header in output file. Use CR+LF for widest OS support
 	fprintf(plikWy,"2theta,intensity,\ndegree,a.u.,\r\n");
 	long double Dtheta=(stop-start)/((long double) liczba);
-	//Print debug data
-	//fprintf(stdout,"Dtheta=%Lf\n",Dtheta);
 	
 	//While looping: count lines, if EOF detected - stop
 	for(uint64_t ii=0;!feof(plikWe);ii++)
@@ -120,7 +115,7 @@ int main(int argc, char** argv)
 				break;
 			}
 			fprintf(plikWy,"%c",c);
-			//Space ' ' is separator between measured data
+			//Space ' ' is separator between measured data - start new datapoint upon detection
 		}
 		while(c!=' ');
 		
