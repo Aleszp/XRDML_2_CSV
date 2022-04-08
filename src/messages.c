@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <unistd.h>
 #include "messages.h"
 
 //Print GPL notice at startup
@@ -26,8 +28,61 @@ void GPLnotice()
 //print Help upon request
 void printHelp()
 {
-	fprintf(stdout,"xrdml2xy [-s][input_path/file.xrdml] [output_path/file.csv].\n");
-	fprintf(stdout,"xrdml2xy [-h][-s]\n");
+	fprintf(stdout,"Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).\nUsage:\n");
+	fprintf(stdout,"xrdml2xy [option] input_file.xrdml [output_file.csv].\n");
+	fprintf(stdout,"xrdml2xy [-h]\n");
 	fprintf(stdout,"-s - prevents display of GNU License Notice (silent).\n");
-	fprintf(stdout,"-h - displays this help.\n");
+	fprintf(stdout,"-h, -? - displays this help.\n");
+}
+
+//print if wrong number of parameters was used
+void wrongUsage()
+{
+	fprintf(stderr,"Wrong number of arguments, besides swithces there input filename and output filename are required.\nPlease run program with -h switch for help.\n");
+}
+
+void wrongFile(char* msg,char* path)
+{
+	fprintf(stderr,"Could not open file for %s: %s\n",msg,path);
+}
+
+int handleStartup(int argc,char** argv,int* optind_)
+{
+	uint_fast8_t notice=1,help=0;
+	char c;
+	//Detect cli switches and set proper flags
+	while((c=getopt(argc,argv,":sh"))!=-1)
+	{	
+		switch(c)
+		{
+			//should help be printed?
+			case '?':
+			case 'h': 
+				help=1;
+				break;
+			//should GNU Notice be supressed?
+			case 's':
+				notice=0;
+				break;
+		}
+	}
+    *optind_=optind;
+    //Detect if proper number of arguments are present
+	if(argc-optind!=2)
+	{
+		wrongUsage();
+		return 1;
+	}
+	
+	//Print notice about GPL
+	if(notice)
+	{
+		GPLnotice();
+	}
+	if(help)
+	{
+		printHelp();
+		return -1;
+	}
+	return 0;
 }
