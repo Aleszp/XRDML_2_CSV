@@ -31,11 +31,12 @@ void printHelp()
 	fprintf(stdout,"Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).\nUsage:\n");
 	fprintf(stdout,"xrdml2xy [option] input_file.xrdml [output_file.csv].\n");
 	fprintf(stdout,"xrdml2xy [-h]\n");
-	fprintf(stdout,"-s - prevents display of GNU License Notice (silent).\n");
+	fprintf(stdout,"-n - prevents display of GNU License Notice (no-notice).\n");
 	fprintf(stdout,"-h, -? - displays this help.\n");
-	fprintf(stdout,"-c, force (default) comma \',\' as separator.\n");
-	fprintf(stdout,"-S, force semicolon \';\' as separator.\n");
-	fprintf(stdout,"-t, force tabulator \'\\t\' as separator.\n");
+	fprintf(stdout,"-c - force (default) comma \',\' as separator.\n");
+	fprintf(stdout,"-S - force semicolon \';\' as separator.\n");
+	fprintf(stdout,"-s - force space \' \' as separator.\n");
+	fprintf(stdout,"-t - force tabulator \'\\t\' as separator.\n");
 	fprintf(stdout,"If more then one separator selecting switch is used, behaviour is undefined, probably based on order.\n");
 }
 
@@ -56,7 +57,7 @@ int handleStartup(int argc,char** argv,int* optind_,char* separator)
 	uint_fast8_t notice=1,help=0;
 	char cc;
 	//Detect cli switches and set proper flags
-	while((cc=getopt(argc,argv,":shctS"))!=-1)
+	while((cc=getopt(argc,argv,":shctSn"))!=-1)
 	{	
 		switch(cc)
 		{
@@ -66,7 +67,7 @@ int handleStartup(int argc,char** argv,int* optind_,char* separator)
 				help=1;
 				break;
 			//should GNU Notice be supressed?
-			case 's':
+			case 'n':
 				notice=0;
 				break;
 				
@@ -77,6 +78,9 @@ int handleStartup(int argc,char** argv,int* optind_,char* separator)
 			//force '\t' as separator
 			case 't':
 				*separator='\t';
+				break;
+			case 's':
+				*separator=' ';
 				break;
 			case 'S':
 				*separator=';';
