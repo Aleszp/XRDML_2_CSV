@@ -105,3 +105,39 @@ long double getDtheta(FILE* fileIn, long double* start,long double* stop)
 	
 	return (*stop-*start)/((long double) count);
 }
+
+void convertData(FILE* fileIn,FILE* fileOut,char separator,long double start,long double Dtheta)
+{
+	//Print header in output file. Use CR+LF for widest OS support
+	fprintf(fileOut,"2theta%cintensity%c\ndegree%ccounts%c\r\n",separator,separator,separator,separator);
+	char character;
+	//While looping: count lines, if EOF detected - stop
+	for(uint64_t ii=0;!feof(fileIn);ii++)
+	{
+		//Print single line:
+		//Print angle with 0.8Lf precision 
+		fprintf(fileOut,"%0.8Lf%c",start+((long double)ii)*Dtheta,separator);
+		do
+		{
+			//Just copy values from input (to avoid unnecessary conversion losses)
+			character=fgetc(fileIn);
+			//Space ' ' is separator between measured data - start new datapoint upon detection
+			//'<' is start of "</intensities>: it's end of data - break the loop
+			if(character=='<'||character==' ')
+			{
+				break;
+			}
+			fprintf(fileOut,"%c",character);
+			//Space ' ' is separator between measured data - start new datapoint upon detection
+		}
+		while(character!=' ');
+		
+		//If '<' - start of "</intensities> is found - it's end of data - break the loop
+		if(character=='<')
+		{
+			break;
+		}
+		//Add end of line (CR+LF for wide OS support)
+		fprintf(fileOut,"%c\r\n",separator);
+	}
+}
