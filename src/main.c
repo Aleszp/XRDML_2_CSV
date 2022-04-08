@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version beta-1.1
+ * version beta-1.2
  */ 
 
 #include <stdio.h>
@@ -33,48 +33,16 @@ int main(int argc,char** argv)
 	if(err!=0)
 		return err;
 	
-	//prepare input buffer
-	char buffer[255];
-	char* ptr;
-	
-	
 	long double start,stop;
-	while(!feof(fileIn))
-	{
-		//skip unused header data (before angle info)
-		fgets(buffer,255,fileIn);
-		ptr=strstr(buffer,"<startPosition>");
-		if(ptr!=NULL)
-		{
-			break;
-		}
-	}
-	//
-	sscanf(ptr+15,"%Lf",&start);
-	fgets(buffer,255,fileIn);
-	ptr=strstr(buffer,"<endPosition>");
-	sscanf(ptr+13,"%Lf",&stop);
+	getStartStop(fileIn,&start,&stop);
 	
-	long offset;
+	skipHeader(fileIn);
 	
-	while(!feof(fileIn))
-	{
-		//skip rest of header to find start of data
-		//save offset
-		offset = ftell(fileIn);
-		fgets(buffer,255,fileIn);
-		ptr=strstr(buffer,"<intensities ");
-		if(ptr!=NULL)
-		{
-			fseek(fileIn, offset, SEEK_SET);
-			fgets(buffer,32,fileIn);
-			break;
-		}
-	}
 	//Print header in output file. Use CR+LF for widest OS support
 	fprintf(fileOut,"2theta%cintensity%c\ndegree%ccounts%c\r\n",separator,separator,separator,separator);
 	
 	char character;
+	long offset;
 	//save offset for further rewind
 	offset = ftell(fileIn);
 	uint64_t count=0;
