@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include "files.h"
 #include "messages.h"
 
@@ -20,6 +21,51 @@ int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
 		return 3;
 	}
 	return 0;
+}
+
+void getStartStop(FILE* fileIn,long double* start,long double* stop)
+{
+	//prepare input buffer
+	char buffer[255];
+	char* ptr;
+	while(!feof(fileIn))
+	{
+		//skip unused header data (before angle info)
+		fgets(buffer,255,fileIn);
+		ptr=strstr(buffer,"<startPosition>");
+		if(ptr!=NULL)
+		{
+			break;
+		}
+	}
+	//
+	sscanf(ptr+15,"%Lf",start);
+	fgets(buffer,255,fileIn);
+	ptr=strstr(buffer,"<endPosition>");
+	sscanf(ptr+13,"%Lf",stop);
+}
+
+void skipHeader(FILE* fileIn)
+{
+	long offset;
+	//prepare input buffer
+	char buffer[255];
+	char* ptr;
+	
+	while(!feof(fileIn))
+	{
+		//skip rest of header to find start of data
+		//save offset
+		offset = ftell(fileIn);
+		fgets(buffer,255,fileIn);
+		ptr=strstr(buffer,"<intensities ");
+		if(ptr!=NULL)
+		{
+			fseek(fileIn, offset, SEEK_SET);
+			fgets(buffer,32,fileIn);
+			break;
+		}
+	}
 }
 
 uint64_t countAngles(FILE* fileIn)
