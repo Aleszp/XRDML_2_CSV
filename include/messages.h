@@ -4,7 +4,7 @@
 void GPLnotice();
 void printHelp();
 void wrongUsage();
-void wrongFile(char* msg,char* path);
+void wrongFile(char* mode,char* path);
 
 int handleStartup(int argc,char** argv,int* optind_);
 

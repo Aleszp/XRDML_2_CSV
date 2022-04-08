@@ -41,9 +41,10 @@ void wrongUsage()
 	fprintf(stderr,"Wrong number of arguments, besides swithces there input filename and output filename are required.\nPlease run program with -h switch for help.\n");
 }
 
-void wrongFile(char* msg,char* path)
+//Inform user that file [path] could not be opened in [mode] mode
+void wrongFile(char* mode,char* path)
 {
-	fprintf(stderr,"Could not open file for %s: %s\n",msg,path);
+	fprintf(stderr,"Could not open file for %s: %s\n",mode,path);
 }
 
 int handleStartup(int argc,char** argv,int* optind_)
