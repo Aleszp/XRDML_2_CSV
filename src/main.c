@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version beta-1.2
+ * version beta-1.3
  */ 
 
 #include <stdio.h>
@@ -37,23 +37,11 @@ int main(int argc,char** argv)
 	getStartStop(fileIn,&start,&stop);
 	
 	skipHeader(fileIn);
+	long double Dtheta=getDtheta(fileIn, &start,&stop);
 	
 	//Print header in output file. Use CR+LF for widest OS support
 	fprintf(fileOut,"2theta%cintensity%c\ndegree%ccounts%c\r\n",separator,separator,separator,separator);
-	
 	char character;
-	long offset;
-	//save offset for further rewind
-	offset = ftell(fileIn);
-	uint64_t count=0;
-	//Count number of individual angles to calculate single step difference (in .xrdml we get accurate initial and final angle data, single step info is too roughly rounded)
-	count=countAngles(fileIn);	
-	
-	//after this - rewind file to start of data
-	fseek(fileIn, offset, SEEK_SET);
-	
-	long double Dtheta=(stop-start)/((long double) count);
-	
 	//While looping: count lines, if EOF detected - stop
 	for(uint64_t ii=0;!feof(fileIn);ii++)
 	{
