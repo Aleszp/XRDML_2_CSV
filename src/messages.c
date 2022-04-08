@@ -49,11 +49,11 @@ void wrongFile(char* msg,char* path)
 int handleStartup(int argc,char** argv,int* optind_)
 {
 	uint_fast8_t notice=1,help=0;
-	char c;
+	char cc;
 	//Detect cli switches and set proper flags
-	while((c=getopt(argc,argv,":sh"))!=-1)
+	while((cc=getopt(argc,argv,":sh"))!=-1)
 	{	
-		switch(c)
+		switch(cc)
 		{
 			//should help be printed?
 			case '?':
