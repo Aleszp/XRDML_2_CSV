@@ -12,18 +12,25 @@
 #include <stdint.h>
 
 void GPLnotice();
+void printHelp();
 
 int main(int argc, char** argv)
 {
+	uint_fast8_t notice=1,help=0;
 	//Print notice about GPL
-	if(1)
+	if(notice)
 	{
 		GPLnotice();
+	}
+	if(help)
+	{
+		printHelp();
 	}
 	//If there is wrong number of arguments: inform user and terminate.
 	if(argc!=3)
 	{
-		fprintf(stderr,"Incorrect number of arguments. %d used, should be %d.\n. Correct use: xrdml2xy [input_path/file.xrdml] [output_path/file.csv].\n", argc-1, 2);
+		//fprintf(stderr,"Incorrect number of arguments. %d used, should be %d.\n. Correct use: xrdml2xy [input_path/file.xrdml] [output_path/file.csv].\n", argc-1, 2);
+		fprintf(stdout,"Incorrect usage, please type \"xrdml2xy -s\" for help.\n");
 		return 1;
 	}
 	//Open intput file for reading
@@ -160,4 +167,12 @@ void GPLnotice()
     
     fprintf(stdout,"Source available: <https://github.com/Aleszp/XRDML_2_CSV>.\n");
     fprintf(stdout,"Contact: aleksander.szsz(a)gmail.com\n\n");
+}
+
+void printHelp()
+{
+	fprintf(stdout,"xrdml2xy [-s][input_path/file.xrdml] [output_path/file.csv].\n");
+	fprintf(stdout,"xrdml2xy [-h][-s]\n");
+	fprintf(stdout,"-s - prevents display of GNU License Notice (silent).\n");
+	fprintf(stdout,"-h - displays this help.\n");
 }
