@@ -10,20 +10,25 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-
-void GPLnotice();
+#include "messages.h"
 
 int main(int argc, char** argv)
 {
+	uint_fast8_t notice=1,help=0;
 	//Print notice about GPL
-	if(1)
+	if(notice)
 	{
 		GPLnotice();
+	}
+	if(help)
+	{
+		printHelp();
 	}
 	//If there is wrong number of arguments: inform user and terminate.
 	if(argc!=3)
 	{
-		fprintf(stderr,"Incorrect number of arguments. %d used, should be %d.\n. Correct use: xrdml2xy [input_path/file.xrdml] [output_path/file.csv].\n", argc-1, 2);
+		//fprintf(stderr,"Incorrect number of arguments. %d used, should be %d.\n. Correct use: xrdml2xy [input_path/file.xrdml] [output_path/file.csv].\n", argc-1, 2);
+		fprintf(stdout,"Incorrect usage, please type \"xrdml2xy -s\" for help.\n");
 		return 1;
 	}
 	//Open intput file for reading
@@ -138,26 +143,4 @@ int main(int argc, char** argv)
 	fclose(fileIn);
 	fclose(fileOut);
 	return 0;
-}
-
-//Print GPL notice at startup
-void GPLnotice()
-{
-	fprintf(stdout,"XRDML_2_CSV, Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).\n\n");
-	fprintf(stdout,"Copyright (C) 2022  Aleksander Szpakiewicz-Szatan\n");
-    fprintf(stdout,"This program is free software: you can redistribute it and/or modify\n");
-    fprintf(stdout,"it under the terms of the GNU General Public License as published\n");
-    fprintf(stdout,"the Free Software Foundation, either version 3 of the License, or\n");
-    fprintf(stdout,"(at your option) any later version.\n\n");
-
-    fprintf(stdout,"This program is distributed in the hope that it will be useful,\n");
-    fprintf(stdout,"but WITHOUT ANY WARRANTY; without even the implied warranty of\n");
-    fprintf(stdout,"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n");
-    fprintf(stdout,"GNU General Public License for more details.\n\n");
-
-    fprintf(stdout,"You should have received a copy of the GNU General Public License\n");
-    fprintf(stdout,"along with this program.  If not, see <https://www.gnu.org/licenses/>.\n\n");
-    
-    fprintf(stdout,"Source available: <https://github.com/Aleszp/XRDML_2_CSV>.\n");
-    fprintf(stdout,"Contact: aleksander.szsz(a)gmail.com\n\n");
 }
