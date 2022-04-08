@@ -33,6 +33,10 @@ void printHelp()
 	fprintf(stdout,"xrdml2xy [-h]\n");
 	fprintf(stdout,"-s - prevents display of GNU License Notice (silent).\n");
 	fprintf(stdout,"-h, -? - displays this help.\n");
+	fprintf(stdout,"-c, force (default) comma \',\' as separator.\n");
+	fprintf(stdout,"-S, force semicolon \';\' as separator.\n");
+	fprintf(stdout,"-t, force tabulator \'\\t\' as separator.\n");
+	fprintf(stdout,"If more then one separator selecting switch is used, behaviour is undefined, probably based on order.\n");
 }
 
 //print if wrong number of parameters was used
@@ -47,12 +51,12 @@ void wrongFile(char* mode,char* path)
 	fprintf(stderr,"Could not open file for %s: %s\n",mode,path);
 }
 
-int handleStartup(int argc,char** argv,int* optind_)
+int handleStartup(int argc,char** argv,int* optind_,char* separator)
 {
 	uint_fast8_t notice=1,help=0;
 	char cc;
 	//Detect cli switches and set proper flags
-	while((cc=getopt(argc,argv,":sh"))!=-1)
+	while((cc=getopt(argc,argv,":shctS"))!=-1)
 	{	
 		switch(cc)
 		{
@@ -65,15 +69,21 @@ int handleStartup(int argc,char** argv,int* optind_)
 			case 's':
 				notice=0;
 				break;
+				
+			//force ',' as separator
+			case 'c':
+				*separator=',';
+				break;
+			//force '\t' as separator
+			case 't':
+				*separator='\t';
+				break;
+			case 'S':
+				*separator=';';
+				break;
 		}
 	}
     *optind_=optind;
-    //Detect if proper number of arguments are present
-	if(argc-optind!=2)
-	{
-		wrongUsage();
-		return 1;
-	}
 	
 	//Print notice about GPL
 	if(notice)
@@ -85,5 +95,13 @@ int handleStartup(int argc,char** argv,int* optind_)
 		printHelp();
 		return -1;
 	}
+	
+	//Detect if proper number of arguments are present
+	if(argc-optind!=2)
+	{
+		wrongUsage();
+		return 1;
+	}
+	
 	return 0;
 }
