@@ -54,3 +54,11 @@ dkms.conf
 #bin directory and it's content
 bin/*
 xrdml2csv
+
+#files the program works with
+*.xrdml
+*.csv
+*.tsv
+*.ssv
+*.xy
+*.txt
