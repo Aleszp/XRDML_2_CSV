@@ -63,6 +63,12 @@ int handleStartup(int argc,char** argv,int* optind_,char* separator)
 		printHelp();
 		return HELP;
 	}
+	//If no separator was forced
+	if(*separator=='\0')
+	{
+		//try to autodetect separator based on output file name
+		*separator=selectSeparator(argc,argv,optind);
+	}
 	
 	//Detect if proper number of arguments are present
 	if(argc-optind!=2)
@@ -96,6 +102,8 @@ int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
 	*fileOut=fopen(argv[argc-optind+1],"w");
 	if(!(*fileOut))
 	{
+		//Close input file, as it is already opened
+		fclose(*fileIn);
 		wrongFile("writting",argv[argc-optind+1]);
 		return OUTPUT;
 	}
@@ -146,4 +154,18 @@ char selectSeparator(int argc,char** argv,int optind)
 	}*/
 	//comma separator (csv extention) is default, fallback
 	return ',';
+}
+
+/**
+ * Close opened files and return error code.
+ * @param fileIn - pointer to input file pointer
+ * @param fileOut - pointer to output file pointer
+ * @param errorCode - code to be returned
+ * @return errorCode (passed from parameter)
+ **/
+int exitProgram(FILE** fileIn, FILE** fileOut,int errorCode)
+{
+	fclose(*fileIn);
+	fclose(*fileOut);
+	return errorCode;
 }

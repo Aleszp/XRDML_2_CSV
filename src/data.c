@@ -38,28 +38,32 @@ int getStartStop(FILE* fileIn,long double* start,long double* stop)
 /**
  * Read input file to skip unneeded part of header.
  * @param fileIn - pointer to input file
+ * @return error code, ==0 - OK, !=0 - error
  */ 
-void skipHeader(FILE* fileIn)
+int skipHeader(FILE* fileIn)
 {
-	long offset;
+	long offset=ftell(fileIn);
 	//prepare input buffer
 	char buffer[255];
-	char* ptr;
+	char* ptr=NULL;
 	
-	while(!feof(fileIn))
+	while(ptr==NULL)
 	{
 		//skip rest of header to find start of data
 		//save offset
-		offset = ftell(fileIn);
+		offset=ftell(fileIn);
 		fgets(buffer,255,fileIn);
 		ptr=strstr(buffer,"<intensities ");
-		if(ptr!=NULL)
+		
+		if(feof(fileIn)) //if EOF prematurely
 		{
-			fseek(fileIn, offset, SEEK_SET);
-			fgets(buffer,32,fileIn);
-			break;
+			fprintf(stderr,"No intensities in input file or broken input file.\n");
+			return NOINTENSITIES;
 		}
 	}
+	fseek(fileIn, offset, SEEK_SET);
+	fgets(buffer,32,fileIn);
+	return OK;
 }
 
 /**
