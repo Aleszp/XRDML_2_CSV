@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version beta-1.9b
+ * version beta-1.10
  */ 
 #include <stdio.h>
 #include <stdint.h>
@@ -23,7 +23,7 @@ int main(int argc,char** argv)
 {
 	int optind=0;
 	int err;
-	char separator=',';
+	char separator='\0';
 	
 	//Handle CLI switches, print help, GNU Notice...
 	err=handleStartup(argc,argv,&optind,&separator);

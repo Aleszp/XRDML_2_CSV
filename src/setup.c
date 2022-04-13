@@ -63,6 +63,12 @@ int handleStartup(int argc,char** argv,int* optind_,char* separator)
 		printHelp();
 		return HELP;
 	}
+	//If no separator was forced
+	if(*separator=='\0')
+	{
+		//try to autodetect separator based on output file name
+		*separator=selectSeparator(argc,argv,optind);
+	}
 	
 	//Detect if proper number of arguments are present
 	if(argc-optind!=2)
