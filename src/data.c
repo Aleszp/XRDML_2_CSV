@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+
 #include "data.h"
 #include "messages.h"
+#include "error.h"
 
 /**
  * Get start and stop angles in measurement from input file
@@ -19,7 +21,7 @@ int getStartStop(FILE* fileIn,long double* start,long double* stop)
 	{
 		if(feof(fileIn))
 		{
-			return 4;
+			return EMPTY;
 		}
 		//skip unused header data (before angle info)
 		fgets(buffer,255,fileIn);
@@ -81,7 +83,7 @@ uint64_t countAngles(FILE* fileIn)
 		//if file ended
 		if(feof(fileIn))
 		{
-			//stop
+			//stop and return info about lack of intensities data
 			return 0;
 		}
 	}
@@ -106,7 +108,7 @@ long double getDtheta(FILE* fileIn, long double* start,long double* stop)
 	if(count==0)
 	{
 		fprintf(stderr,"No intensities in input file or broken input file.\n");
-		return -1.0;
+		return -1.0;	//return number <0
 	}
 	
 	//after this - rewind file to start of data
