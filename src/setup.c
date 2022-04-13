@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
+
 #include "messages.h"
 #include "setup.h"
+#include "error.h"
 
 /**
  * Detect CLI arguments and (optionally) set separator based on them.
@@ -59,17 +61,17 @@ int handleStartup(int argc,char** argv,int* optind_,char* separator)
 	if(help)
 	{
 		printHelp();
-		return -1;
+		return HELP;
 	}
 	
 	//Detect if proper number of arguments are present
 	if(argc-optind!=2)
 	{
 		wrongUsage();
-		return 1;
+		return ARGUMENTS;
 	}
 	
-	return 0;
+	return OK;
 }
 
 /**
@@ -88,16 +90,16 @@ int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
 	if(!(*fileIn))
 	{
 		wrongFile("reading",argv[argc-optind]);
-		return 2;
+		return INPUT;
 	}
 	//Open intput file for writting
 	*fileOut=fopen(argv[argc-optind+1],"w");
 	if(!(*fileOut))
 	{
 		wrongFile("writting",argv[argc-optind+1]);
-		return 3;
+		return OUTPUT;
 	}
-	return 0;
+	return OK;
 }
 
 /**
