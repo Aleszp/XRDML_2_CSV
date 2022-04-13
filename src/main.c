@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version beta-1.13
+ * version beta-1.13b
  */ 
 #include <stdio.h>
 #include <stdint.h>
@@ -28,7 +28,9 @@ int main(int argc,char** argv)
 	//Handle CLI switches, print help, GNU Notice...
 	err=handleStartup(argc,argv,&optind,&separator);
 	if(err!=OK)
-		return err;
+	{
+		return err;	//don't close files, as they were not opened yet 
+	}
 	
 	FILE* fileIn;
 	FILE* fileOut;
@@ -37,7 +39,7 @@ int main(int argc,char** argv)
 	err=openFiles(argc,argv,optind,&fileIn,&fileOut);
 	if(err!=OK)
 	{
-		return err;	//don't close files, as they were not yet opened (or fileIn was closed with openFiles function itself)
+		return err;	//don't close files, as they were not opened yet (or fileIn was closed with openFiles function itself)
 	}
 	
 	long double start,stop,Dtheta;
