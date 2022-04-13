@@ -4,6 +4,12 @@
 #include "data.h"
 #include "messages.h"
 
+/**
+ * Get start and stop angles in measurement from input file
+ * @param fileIn - pointer to input file
+ * @param start - pointer to longdouble to which first angle value will be copied
+ * @param stop -  pointer to longdouble to which last angle value will be copied
+ */
 void getStartStop(FILE* fileIn,long double* start,long double* stop)
 {
 	//prepare input buffer
@@ -26,6 +32,10 @@ void getStartStop(FILE* fileIn,long double* start,long double* stop)
 	sscanf(ptr+13,"%Lf",stop);
 }
 
+/**
+ * Read input file to skip unneeded part of header.
+ * @param fileIn - pointer to input file
+ */ 
 void skipHeader(FILE* fileIn)
 {
 	long offset;
@@ -49,6 +59,11 @@ void skipHeader(FILE* fileIn)
 	}
 }
 
+/**
+ * Count how many individual angles there are.
+ * @param fileIn - pointer to input file
+ * @return number of angles (unsigned 64bit integer)
+ */
 uint64_t countAngles(FILE* fileIn)
 {
 	uint64_t counter=0;
@@ -73,6 +88,13 @@ uint64_t countAngles(FILE* fileIn)
 	return counter;
 }
 
+/**
+ * Calculate difference between angles.
+ * @param fileIn - pointer to input file
+ * @param start - pointer to long double with start angle value
+ * @param stop - pointer to long double with stop angle value
+ * @return long double with difference (should be >0)
+ */ 
 long double getDtheta(FILE* fileIn, long double* start,long double* stop)
 {
 	//save offset for further rewind
@@ -87,7 +109,14 @@ long double getDtheta(FILE* fileIn, long double* start,long double* stop)
 	return (*stop-*start)/((long double) count);
 }
 
-void convertData(FILE* fileIn,FILE* fileOut,char separator,long double start,long double Dtheta)
+/**
+ * Convert data from input file into output file.
+ * @param fileIn - pointer to input file
+ * @param fileOut - pointer to output file
+ * @param separator - character that would be used as separator in output file
+ * @param 
+ */
+void convertData(FILE* fileIn,FILE* fileOut,char separator,long double* start,long double* Dtheta)
 {
 	//Print header in output file. Use CR+LF for widest OS support
 	fprintf(fileOut,"2theta%cintensity%c\ndegree%ccounts%c\r\n",separator,separator,separator,separator);
@@ -97,7 +126,7 @@ void convertData(FILE* fileIn,FILE* fileOut,char separator,long double start,lon
 	{
 		//Print single line:
 		//Print angle with 0.8Lf precision 
-		fprintf(fileOut,"%0.8Lf%c",start+((long double)ii)*Dtheta,separator);
+		fprintf(fileOut,"%0.8Lf%c",(*start)+((long double)ii)*(*Dtheta),separator);
 		do
 		{
 			//Just copy values from input (to avoid unnecessary conversion losses)

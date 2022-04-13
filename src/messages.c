@@ -2,7 +2,9 @@
 
 #include "messages.h"
 
-//Print GPL notice at startup
+/**
+ * Print GPL notice (at startup)
+ */ 
 void GPLnotice()
 {
 	fprintf(stdout,"XRDML_2_CSV, Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).\n\n");
@@ -24,7 +26,9 @@ void GPLnotice()
     fprintf(stdout,"Contact: aleksander.szsz(a)gmail.com\n\n");
 }
 
-//print Help upon request
+/**
+ * print Help (upon request)
+ */ 
 void printHelp()
 {
 	fprintf(stdout,"Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).\nUsage:\n");
@@ -41,13 +45,19 @@ void printHelp()
 	fprintf(stdout,"CR+LF is used as line end for widest OS compability.");
 }
 
-//print if wrong number of parameters was used
+/**
+ * print if wrong number of parameters was used
+ */
 void wrongUsage()
 {
 	fprintf(stderr,"Wrong number of arguments, besides swithces there input filename and output filename are required.\nPlease run program with -h switch for help.\n");
 }
 
-//Inform user that file [path] could not be opened in [mode] mode
+/**
+ * Inform user that file  could not be opened in chosen mode
+ * @param mode - mode in which user tried to open file (text to print in message i.e. "reading"
+ * @param path - name (and path) of file that user tired to open
+ */
 void wrongFile(char* mode,char* path)
 {
 	fprintf(stderr,"Could not open file for %s: %s\n",mode,path);

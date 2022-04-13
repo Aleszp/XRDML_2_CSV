@@ -5,7 +5,6 @@
  * (c) 2021-2022
  * version beta-1.7
  */ 
-
 #include <stdio.h>
 #include <stdint.h>
 
@@ -13,6 +12,12 @@
 #include "data.h"
 #include "setup.h"
 
+/**
+* Just the main function
+* @param argc - arguments counter
+* @param argv - table with arguments values
+* @return ==0 for proper execution, !=0 in case of abnotmal execution
+*/ 
 int main(int argc,char** argv)
 {
 	int optind=0;
@@ -32,11 +37,12 @@ int main(int argc,char** argv)
 	if(err!=0)
 		return err;
 	
-	long double start,stop;
+	long double start,stop,Dtheta;
 	getStartStop(fileIn,&start,&stop);
 	
 	skipHeader(fileIn);
-	convertData(fileIn,fileOut,separator,start,getDtheta(fileIn, &start,&stop));
+	Dtheta=getDtheta(fileIn, &start,&stop);
+	convertData(fileIn,fileOut,separator,&start,&Dtheta);
 	
 	//Close input and output files
 	fclose(fileIn);
