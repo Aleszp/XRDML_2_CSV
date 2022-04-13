@@ -1,27 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "files.h"
+#include "data.h"
 #include "messages.h"
-
-int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
-{
-	//Open intput file for reading
-	*fileIn=fopen(argv[argc-optind],"r");
-	if(!(*fileIn))
-	{
-		wrongFile("reading",argv[argc-optind]);
-		return 2;
-	}
-	//Open intput file for writting
-	*fileOut=fopen(argv[argc-optind+1],"w");
-	if(!(*fileOut))
-	{
-		wrongFile("writting",argv[argc-optind+1]);
-		return 3;
-	}
-	return 0;
-}
 
 void getStartStop(FILE* fileIn,long double* start,long double* stop)
 {

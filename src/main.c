@@ -3,14 +3,15 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version beta-1.4
+ * version beta-1.6
  */ 
 
 #include <stdio.h>
 #include <stdint.h>
 
 #include "messages.h"
-#include "files.h"
+#include "data.h"
+#include "setup.h"
 
 int main(int argc,char** argv)
 {

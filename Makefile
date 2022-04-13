@@ -8,8 +8,8 @@ CXX=gcc
 CFLAGS=-pedantic -Wall -std=gnu99 -O3 -I$(INCLUDEDIR) 
 LIBS= -lm
 
-DEPS = messages.h files.h
-SRCS = main.c messages.c files.c
+DEPS = messages.h data.h setup.h
+SRCS = main.c messages.c data.c setup.c
 
 OBJS := $(addprefix $(OBJDIR),$(SRCS:.c=.o))
 SRCS := $(addprefix $(SRCDIR),$(SRCS))
