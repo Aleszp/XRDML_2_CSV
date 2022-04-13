@@ -1,6 +1,7 @@
 /*
- * Part Program XRDML_2_CSV
- * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
+ * Part of program XRDML_2_CSV
+ * Data oriented functions header file.
+ *
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
  * Licensed under GPL-3.0 License
