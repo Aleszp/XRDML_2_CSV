@@ -3,7 +3,7 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version beta-1.12
+ * version beta-1.12b
  */ 
 #include <stdio.h>
 #include <stdint.h>
@@ -36,14 +36,15 @@ int main(int argc,char** argv)
 	//Open input and output files
 	err=openFiles(argc,argv,optind,&fileIn,&fileOut);
 	if(err!=OK)
-		return err;
+	{
+		return err;	//don't close files, as they were not yet opened (or fileIn was closed with openFiles function itself)
+	}
 	
 	long double start,stop,Dtheta;
 	err=getStartStop(fileIn,&start,&stop);
 	if(err!=OK)
 	{
 		fprintf(stderr,"Could not get start or stop angle. Is %s proper input file?\n",argv[argc-optind]);
-		//Close input and output files
 		return exitProgram(&fileIn,&fileOut,err);
 	}
 	
@@ -52,10 +53,8 @@ int main(int argc,char** argv)
 	if(Dtheta>0.0)	//if data is reasonable - convert data
 	{
 		convertData(fileIn,fileOut,separator,&start,&Dtheta);
-		//Close input and output files
 		return exitProgram(&fileIn,&fileOut,OK);
 	}
 
-	//Close input and output files
 	return exitProgram(&fileIn,&fileOut,NOINTENSITIES);
 }
