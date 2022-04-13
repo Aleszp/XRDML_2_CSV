@@ -1,6 +1,5 @@
 #include <stdio.h>
-#include <stdint.h>
-#include <unistd.h>
+
 #include "messages.h"
 
 //Print GPL notice at startup
@@ -29,7 +28,7 @@ void GPLnotice()
 void printHelp()
 {
 	fprintf(stdout,"Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).\nUsage:\n");
-	fprintf(stdout,"xrdml2xy [option] input_file.xrdml [output_file.csv].\n");
+	fprintf(stdout,"xrdml2xy [option] input_file.xrdml [output_file.ext].\n");
 	fprintf(stdout,"xrdml2xy [-h]\n");
 	fprintf(stdout,"-n - prevents display of GNU License Notice (no-notice).\n");
 	fprintf(stdout,"-h, -? - displays this help.\n");
@@ -38,6 +37,8 @@ void printHelp()
 	fprintf(stdout,"-s - force space \' \' as separator.\n");
 	fprintf(stdout,"-t - force tabulator \'\\t\' as separator.\n");
 	fprintf(stdout,"If more then one separator selecting switch is used, behaviour is undefined, probably based on order.\n");
+	//fprintf(stdout,"If no separator selecting switch is used, autodetection based on extention is performed, .txt - space, .tsv or .xy - tab, .ssv - semicolon, .csv (or as fallback if unrecognised extention is used) - comma.\n");
+	fprintf(stdout,"CR+LF is used as line end for widest OS compability.");
 }
 
 //print if wrong number of parameters was used
@@ -52,60 +53,3 @@ void wrongFile(char* mode,char* path)
 	fprintf(stderr,"Could not open file for %s: %s\n",mode,path);
 }
 
-int handleStartup(int argc,char** argv,int* optind_,char* separator)
-{
-	uint_fast8_t notice=1,help=0;
-	char cc;
-	//Detect cli switches and set proper flags
-	while((cc=getopt(argc,argv,":shctSn"))!=-1)
-	{	
-		switch(cc)
-		{
-			//should help be printed?
-			case '?':
-			case 'h': 
-				help=1;
-				break;
-			//should GNU Notice be supressed?
-			case 'n':
-				notice=0;
-				break;
-				
-			//force ',' as separator
-			case 'c':
-				*separator=',';
-				break;
-			//force '\t' as separator
-			case 't':
-				*separator='\t';
-				break;
-			case 's':
-				*separator=' ';
-				break;
-			case 'S':
-				*separator=';';
-				break;
-		}
-	}
-    *optind_=optind;
-	
-	//Print notice about GPL
-	if(notice)
-	{
-		GPLnotice();
-	}
-	if(help)
-	{
-		printHelp();
-		return -1;
-	}
-	
-	//Detect if proper number of arguments are present
-	if(argc-optind!=2)
-	{
-		wrongUsage();
-		return 1;
-	}
-	
-	return 0;
-}

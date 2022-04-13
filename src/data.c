@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "files.h"
+#include "data.h"
 #include "messages.h"
 
 int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
@@ -21,6 +21,45 @@ int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
 		return 3;
 	}
 	return 0;
+}
+
+char selectSeparator(int argc,char** argv,int optind)
+{
+	//char *txt,*ssv,*xy,*tsv,*csv;
+	
+	//brak funkcji strrstr, użyj strchr by znaleźć ostatnią kropkę i po niej określ rozszerzenie
+	/*txt=strrstr(argv[argc-optind],".txt");
+	ssv=strrstr(argv[argc-optind],".ssv");
+	xy=strrstr(argv[argc-optind],".xy");
+	tsv=strrstr(argv[argc-optind],".tsv");
+	csv=strrstr(argv[argc-optind],".csv");
+	*/
+	//char* last=txt;
+	
+	//find which extention is last (i.e data.csv.txt is txt, not csv), warning data.csv123 is treated as .csv as 123 is not defined and igonred
+	/*if(last>ssv)
+		last=ssv;
+	if(last>xy)
+		last=xy;
+	if(last>tsv)
+		last=tsv;	
+	if(last>csv)
+		last=csv;	
+	
+	if(last==txt)	//if txt return space ' '
+	{	
+		return ' ';
+	}
+	if(last==xy)	//if ssv return semicolon ';'
+	{
+		return ';';
+	}
+	if(last==tsv)	//if TSV or XY return tab '\t'
+	{
+		return '\t';
+	}*/
+	//comma separator (csv extention) is default, fallback
+	return ',';
 }
 
 void getStartStop(FILE* fileIn,long double* start,long double* stop)
