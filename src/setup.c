@@ -4,7 +4,14 @@
 #include "messages.h"
 #include "setup.h"
 
-
+/**
+ * Detect CLI arguments and (optionally) set separator based on them.
+ * @param argc - counter of CLI arguments (just pass argc from main)
+ * @param argv - table with CLI arguments (just pass argv from main)
+ * @param optiond_ - pointer to external int variable that would pass optind to other functions
+ * @param separator - pointer to external char variable that would pass separator (i.e. comma ',')
+ * @return int with error code, ==-1 user asked for help, ==1 - error, ==0 - proper execution 
+ */ 
 int handleStartup(int argc,char** argv,int* optind_,char* separator)
 {
 	uint_fast8_t notice=1,help=0;
@@ -65,7 +72,15 @@ int handleStartup(int argc,char** argv,int* optind_,char* separator)
 	return 0;
 }
 
-
+/**
+ * Get separator from file extention.
+ * @param argc - counter of CLI arguments (just pass argc from main)
+ * @param argv - table with CLI arguments (just pass argv from main) 
+ * @param optind - int passed from handleStartup
+ * @param fileIn - pointer to FILE pointer of input file (to be passed to other functions)
+ * @param fileOut - pointer to FILE pointer of output file (to be passed to other functions)
+ * @return int with error code, ==0 proper execution, ==2 - failed to open file for reading, ==3 - failed to open file for writting
+ */ 
 int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
 {
 	//Open intput file for reading
@@ -85,6 +100,13 @@ int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
 	return 0;
 }
 
+/**
+ * Get separator from file extention.
+ * @param argc - counter of CLI arguments (just pass argc from main)
+ * @param argv - table with CLI arguments (just pass argv from main) 
+ * @param optind - int passed from handleStartup
+ * @return char with separator to be used
+ */ 
 char selectSeparator(int argc,char** argv,int optind)
 {
 	//char *txt,*ssv,*xy,*tsv,*csv;
