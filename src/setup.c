@@ -102,6 +102,8 @@ int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
 	*fileOut=fopen(argv[argc-optind+1],"w");
 	if(!(*fileOut))
 	{
+		//Close input file, as it is already opened
+		fclose(fileIn);
 		wrongFile("writting",argv[argc-optind+1]);
 		return OUTPUT;
 	}
