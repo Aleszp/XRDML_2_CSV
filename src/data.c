@@ -10,26 +10,27 @@
  * @param start - pointer to longdouble to which first angle value will be copied
  * @param stop -  pointer to longdouble to which last angle value will be copied
  */
-void getStartStop(FILE* fileIn,long double* start,long double* stop)
+int getStartStop(FILE* fileIn,long double* start,long double* stop)
 {
 	//prepare input buffer
 	char buffer[255];
-	char* ptr;
-	while(!feof(fileIn))
+	char* ptr=NULL;
+	while(ptr==NULL)
 	{
+		if(feof(fileIn))
+		{
+			return 4;
+		}
 		//skip unused header data (before angle info)
 		fgets(buffer,255,fileIn);
 		ptr=strstr(buffer,"<startPosition>");
-		if(ptr!=NULL)
-		{
-			break;
-		}
 	}
-	//
+
 	sscanf(ptr+15,"%Lf",start);
 	fgets(buffer,255,fileIn);
 	ptr=strstr(buffer,"<endPosition>");
 	sscanf(ptr+13,"%Lf",stop);
+	return 0;
 }
 
 /**
@@ -62,7 +63,7 @@ void skipHeader(FILE* fileIn)
 /**
  * Count how many individual angles there are.
  * @param fileIn - pointer to input file
- * @return number of angles (unsigned 64bit integer)
+ * @return number of angles (unsigned 64bit integer), returns zero if no data is detected or EOF file reached within data
  */
 uint64_t countAngles(FILE* fileIn)
 {
@@ -81,7 +82,7 @@ uint64_t countAngles(FILE* fileIn)
 		if(feof(fileIn))
 		{
 			//stop
-			break;
+			return 0;
 		}
 	}
 	while(character!='<');	//is it end of data?
@@ -93,7 +94,7 @@ uint64_t countAngles(FILE* fileIn)
  * @param fileIn - pointer to input file
  * @param start - pointer to long double with start angle value
  * @param stop - pointer to long double with stop angle value
- * @return long double with difference (should be >0)
+ * @return long double with difference (should be >0), negative values mean error
  */ 
 long double getDtheta(FILE* fileIn, long double* start,long double* stop)
 {
@@ -102,6 +103,11 @@ long double getDtheta(FILE* fileIn, long double* start,long double* stop)
 	
 	//Count number of individual angles to calculate single step difference (in .xrdml we get accurate initial and final angle data, single step info is too roughly rounded)
 	uint64_t count=countAngles(fileIn);	
+	if(count==0)
+	{
+		fprintf(stderr,"No intensities in input file or broken input file.\n");
+		return -1.0;
+	}
 	
 	//after this - rewind file to start of data
 	fseek(fileIn, offset, SEEK_SET);
