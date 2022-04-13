@@ -3,7 +3,8 @@
  * Simple CLI utility for extraction of XRD data from XRDML format into CSV compatible (or into other ASCII based format).
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * version beta-1.13b
+ * Version: beta-1.13d
+ * Licensed under GPL-3.0 License
  */ 
 #include <stdio.h>
 #include <stdint.h>
@@ -57,7 +58,7 @@ int main(int argc,char** argv)
 	}
 	
 	Dtheta=getDtheta(fileIn, &start,&stop);
-	if(Dtheta>0.0)	//if data is reasonable - convert data
+	if(Dtheta>0.0)	//if Dtheta is reasonable - convert data
 	{
 		convertData(fileIn,fileOut,separator,&start,&Dtheta);
 		return exitProgram(&fileIn,&fileOut,OK);
