@@ -1,3 +1,11 @@
+#
+# Part of program XRDML_2_CSV
+# Makefile
+# Author: mgr inż. Aleksander Szpakiewicz-Szatan
+# (c) 2021-2022
+# Licensed under GPL-3.0 License
+# 
+
 SRCDIR=./src/
 INCLUDEDIR=./include/
 OBJDIR=./obj/

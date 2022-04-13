@@ -1,3 +1,12 @@
+/*
+ * Part of program XRDML_2_CSV
+ * Data oriented functions header file.
+ *
+ * Author: mgr inż. Aleksander Szpakiewicz-Szatan
+ * (c) 2021-2022
+ * Licensed under GPL-3.0 License
+ */ 
+
 #ifndef _FILE_H_
 #define _FILE_H_
 

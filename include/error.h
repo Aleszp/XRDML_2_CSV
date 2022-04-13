@@ -1,3 +1,11 @@
+/*
+ * Part of program XRDML_2_CSV
+ * Error codes header file.
+ * 
+ * Author: mgr inż. Aleksander Szpakiewicz-Szatan
+ * (c) 2021-2022
+ * Licensed under GPL-3.0 License
+ */ 
 #ifndef _ERROR_H_
 #define _ERROR_H_
 

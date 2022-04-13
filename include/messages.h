@@ -1,3 +1,12 @@
+/*
+ * Part of program XRDML_2_CSV
+ * Messages function header file.
+ * 
+ * Author: mgr inż. Aleksander Szpakiewicz-Szatan
+ * (c) 2021-2022
+ * Licensed under GPL-3.0 License
+ */ 
+ 
 #ifndef _MESSAGES_H_
 #define _MESSAGES_H_
 

@@ -1,3 +1,12 @@
+/*
+ * Part of program XRDML_2_CSV
+ * Data oriented functions implementation file.
+ * 
+ * Author: mgr inż. Aleksander Szpakiewicz-Szatan
+ * (c) 2021-2022
+ * Licensed under GPL-3.0 License
+ */ 
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>

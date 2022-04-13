@@ -1,3 +1,12 @@
+/*
+ * Part of program XRDML_2_CSV
+ * Setup functions header file.
+ * 
+ * Author: mgr inż. Aleksander Szpakiewicz-Szatan
+ * (c) 2021-2022
+ * Licensed under GPL-3.0 License
+ */ 
+ 
 #ifndef _SETUP_H_
 #define _SETUP_H_
 
