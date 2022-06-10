@@ -90,7 +90,7 @@ int handleStartup(int argc,char** argv,int* optind_,char* separator)
 }
 
 /**
- * Get separator from file extention.
+ * Open file based on arguments
  * @param argc - counter of CLI arguments (just pass argc from main)
  * @param argv - table with CLI arguments (just pass argv from main) 
  * @param optind - int passed from handleStartup
