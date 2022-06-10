@@ -5,7 +5,7 @@
  * 
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * Version: beta-1.13g
+ * Version: rc-1.0
  * Licensed under GPL-3.0 License
  */ 
 #include <stdio.h>
@@ -24,7 +24,7 @@
 */ 
 int main(int argc,char** argv)
 {
-	int optind=0;
+	int optind=2;
 	int err;
 	char separator='\0';
 	
