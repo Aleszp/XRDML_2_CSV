@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "messages.h"
 #include "setup.h"
@@ -60,8 +61,11 @@ int handleStartup(int argc,char** argv,int* optind_,char* separator)
 				break;
 		}
 	}
-    *optind_=optind;
-	
+	*optind_=optind;
+	if(*optind_==1)	//If no switches were used:
+	{
+		*optind_=2;
+	}
 	//Print notice about GPL
 	if(notice)
 	{
@@ -102,6 +106,7 @@ int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
 {
 	//Open intput file for reading
 	*fileIn=fopen(argv[argc-optind],"r");
+
 	if(!(*fileIn))
 	{
 		wrongFile("reading",argv[argc-optind]);
@@ -128,39 +133,25 @@ int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
  */ 
 char selectSeparator(int argc,char** argv,int optind)
 {
-	//char *txt,*ssv,*xy,*tsv,*csv;
-	
-	//brak funkcji strrstr, użyj strchr by znaleźć ostatnią kropkę i po niej określ rozszerzenie
-	/*txt=strrstr(argv[argc-optind],".txt");
-	ssv=strrstr(argv[argc-optind],".ssv");
-	xy=strrstr(argv[argc-optind],".xy");
-	tsv=strrstr(argv[argc-optind],".tsv");
-	csv=strrstr(argv[argc-optind],".csv");
-	*/
-	//char* last=txt;
-	
-	//find which extention is last (i.e data.csv.txt is txt, not csv), warning data.csv123 is treated as .csv as 123 is not defined and igonred
-	/*if(last>ssv)
-		last=ssv;
-	if(last>xy)
-		last=xy;
-	if(last>tsv)
-		last=tsv;	
-	if(last>csv)
-		last=csv;	
-	
-	if(last==txt)	//if txt return space ' '
+	//Find last occurance od dot - this way file extention can be detected.
+	char* extention=strrchr(argv[argc-optind],'.');
+	//If no dot could be found - no extention - fallback to comma separator
+	if(!extention)
+	{
+		return ',';
+	}
+	if(strcmp(extention,".txt")==0)	//if txt return space ' '
 	{	
 		return ' ';
 	}
-	if(last==xy)	//if ssv return semicolon ';'
+	if(strcmp(extention,".ssv")==0)	//if ssv return semicolon ';'
 	{
 		return ';';
 	}
-	if(last==tsv)	//if TSV or XY return tab '\t'
+	if(strcmp(extention,".tsv")==0||strcmp(extention,".xy")==0)	//if TSV or XY return tab '\t'
 	{
 		return '\t';
-	}*/
+	}
 	//comma separator (csv extention) is default, fallback
 	return ',';
 }

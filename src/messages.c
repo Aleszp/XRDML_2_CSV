@@ -51,8 +51,8 @@ void printHelp()
 	fprintf(stdout,"-s - force space \' \' as separator.\n");
 	fprintf(stdout,"-t - force tabulator \'\\t\' as separator.\n");
 	fprintf(stdout,"If more then one separator selecting switch is used, behaviour is undefined, probably based on order.\n");
-	//fprintf(stdout,"If no separator selecting switch is used, autodetection based on extention is performed, .txt - space, .tsv or .xy - tab, .ssv - semicolon, .csv (or as fallback if unrecognised extention is used) - comma.\n");
-	fprintf(stdout,"CR+LF is used as line end for widest OS compability.");
+	fprintf(stdout,"If no separator selecting switch is used, autodetection based on extention is performed: \n.txt - space, \n.tsv or .xy - tab, \n.ssv - semicolon, \n.csv (or as fallback if unrecognised extention is used) - comma.\n");
+	fprintf(stdout,"CR+LF is used as line end for widest OS compability.\n");
 }
 
 /**
