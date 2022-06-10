@@ -56,7 +56,7 @@ void printHelp()
 }
 
 /**
- * print if wrong number of parameters was used
+ * Inform user that wrong number of parameters was used
  */
 void wrongUsage()
 {
