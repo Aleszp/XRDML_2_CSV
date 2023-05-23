@@ -5,7 +5,7 @@
  * 
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * Version: rc-1.0
+ * Version: 1.1
  * Licensed under GPL-3.0 License
  */ 
 #include <stdio.h>
