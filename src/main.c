@@ -5,7 +5,7 @@
  * 
  * Author: mgr inż. Aleksander Szpakiewicz-Szatan
  * (c) 2021-2022
- * Version: 1.1
+ * Version: 1.2
  * Licensed under GPL-3.0 License
  */ 
 #include <stdio.h>
@@ -46,33 +46,33 @@ int main(int argc,char** argv)
 	}
 	
 	uint64_t count=2;
-	long double* start=(long double*)malloc(sizeof(long double)*(count));
+	long double start[2];
+	long offset=0;
 	
-	err=getStartStop(fileIn,&start,&count);
+	err=getStartStop(fileIn,start,&count,&offset);
 	if(err!=OK)
 	{
 		fprintf(stderr,"Could not get start or stop angle. Is %s proper input file?\n",argv[argc-optind]);
-		return exitProgram(&fileIn,&fileOut,err,start);
+		return exitProgram(&fileIn,&fileOut,err);
 	}
 	skipHeader(fileIn);
 	if(err!=OK)
 	{
-		return exitProgram(&fileIn,&fileOut,err,start);
+		return exitProgram(&fileIn,&fileOut,err);
 	}
 
 	if(count==2)
 	{
 
 		long double Dtheta=getDtheta(fileIn, start,&count);
-		//fprintf(stderr,"7\n");
+
 		if(Dtheta<=0.0)	//if Dtheta is unreasonable - stop
 		{
-			return exitProgram(&fileIn,&fileOut,DTHETA,start);
+			return exitProgram(&fileIn,&fileOut,DTHETA);
 		}
-		//fprintf(stderr,"8\n");
-		calculateAngles(&start,&count,&Dtheta);
-		//fprintf(stderr,"9\n");
+		convertData1(fileIn,fileOut,separator,start,&Dtheta);
+		return exitProgram(&fileIn,&fileOut,OK);
 	}
-	convertData(fileIn,fileOut,separator,start,&count);
-	return exitProgram(&fileIn,&fileOut,OK,start);
+	convertData2(fileIn,fileOut,separator,start,offset);
+	return exitProgram(&fileIn,&fileOut,OK);
 }
