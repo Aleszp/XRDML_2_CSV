@@ -52,18 +52,14 @@ int getStartStop(FILE* fileIn,long double** start,uint64_t* count)
 		offset=ftell(fileIn);
 		fgets(buffer,255,fileIn);
 		ptr=strstr(buffer,"<listPositions>");
-		if(ptr!=NULL)
+		if(ptr!=NULL)	//if there is list of positions
 		{
 			fseek(fileIn, offset, SEEK_SET);
-			char c=' ';
-			while(c!='>')
-			{
-				c=getc(fileIn);
-				putc(c,stderr);
-			}
+			
+			while(getc(fileIn)!='>');	//skip beginning of line
+			
 			offset=ftell(fileIn);
 			*count=countAngles(fileIn);
-			fprintf(stderr,"\nCount=%lu\n",*count);
 			fseek(fileIn, offset, SEEK_SET);
 			*start=(long double*)realloc(*start,sizeof(long double)*(*count));
 			if(*start==NULL)
@@ -75,25 +71,22 @@ int getStartStop(FILE* fileIn,long double** start,uint64_t* count)
 			for(uint64_t ii=0;ii<*count;)
 			{
 				buffer[jj]=fgetc(fileIn);
-				//fprintf(stderr,"ii=%lu, buffer[%u]=%c; buffer=%s\n",ii, jj,buffer[jj],buffer);
 				if(feof(fileIn)||buffer[jj]=='\n')
 				{
 					return EMPTY;
 				}
-				if(buffer[jj]==' ')
+				if(buffer[jj]==' ')	//detect if next position
 				{
 					buffer[jj]='\0';
 					sscanf(buffer,"%Lf",(*start)+ii);
-					fprintf(stderr,"start[%lu]=%Lf\n",ii,(*start)[ii]);
 					jj=0;
 					ii++;
 					continue;
 				}
-				if(buffer[jj]=='<')
+				if(buffer[jj]=='<') //detect if last position
 				{
 					buffer[jj]='\0';
 					sscanf(buffer,"%Lf",(*start)+ii);
-					fprintf(stderr,"start[%lu]=%Lf\n",ii,(*start)[ii]);
 					jj=0;
 					ii++;
 					break;
@@ -161,7 +154,7 @@ uint64_t countAngles(FILE* fileIn)
 	do
 	{
 		character=fgetc(fileIn);
-		//fputc(character,stderr);
+
 		//for each separating space
 		if(character==' ')
 		{
@@ -176,7 +169,6 @@ uint64_t countAngles(FILE* fileIn)
 		}
 	}
 	while(character!='<');	//is it end of data?
-	//fprintf(stderr,"\nCounter=%lu\n",counter);
 	return counter;
 }
 
@@ -204,10 +196,6 @@ long double getDtheta(FILE* fileIn, long double* start,uint64_t* count)
 	//after this - rewind file to start of data
 	fseek(fileIn, offset, SEEK_SET);
 	long double tmp=(start[1]-start[0])/((long double) *count);
-	//long double test=start[0];
-	//fprintf(stderr,"start[1]=%Lf\n",start[1]);
-	//fprintf(stderr,"start[0]=%Lf\n",start[0]);
-	//fprintf(stderr,"tmp=%Lf\n",tmp);
 	return tmp;
 }
 /**
