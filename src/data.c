@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "data.h"
 #include "messages.h"
@@ -18,14 +19,16 @@
 /**
  * Get start and stop angles in measurement from input file
  * @param fileIn - pointer to input file
- * @param start - pointer to longdouble to which first angle value will be copied
- * @param stop -  pointer to longdouble to which last angle value will be copied
+ * @param start  - pointer to long double table to which angles value will be copied
+ * @param count  -  pointer to uint64_t to which number of angles will be written
+ * @return errorCode, ==0 - OK, !=0 - error
  */
-int getStartStop(FILE* fileIn,long double* start,long double* stop)
+int getStartStop(FILE* fileIn,long double** start,uint64_t* count)
 {
 	//prepare input buffer
 	char buffer[255];
 	char* ptr=NULL;
+	
 	while(ptr==NULL)
 	{
 		if(feof(fileIn))
@@ -34,14 +37,78 @@ int getStartStop(FILE* fileIn,long double* start,long double* stop)
 		}
 		//skip unused header data (before angle info)
 		fgets(buffer,255,fileIn);
+		ptr=strstr(buffer,"<positions axis=\"2Theta\" unit=\"deg\">");
+	}
+	long offset=ftell(fileIn);
+
+	ptr=NULL;
+	while(ptr==NULL)
+	{
+		if(feof(fileIn))
+		{
+			return EMPTY;
+		}
+		//skip unused header data (before angle info)
+		offset=ftell(fileIn);
+		fgets(buffer,255,fileIn);
+		ptr=strstr(buffer,"<listPositions>");
+		if(ptr!=NULL)	//if there is list of positions
+		{
+			fseek(fileIn, offset, SEEK_SET);
+			
+			while(getc(fileIn)!='>');	//skip beginning of line
+			
+			offset=ftell(fileIn);
+			*count=countAngles(fileIn);
+			fseek(fileIn, offset, SEEK_SET);
+			*start=(long double*)realloc(*start,sizeof(long double)*(*count));
+			if(*start==NULL)
+			{
+				return MALLOC;
+			}
+			char buffer[255];
+			uint_fast8_t jj=0;
+			for(uint64_t ii=0;ii<*count;)
+			{
+				buffer[jj]=fgetc(fileIn);
+				if(feof(fileIn)||buffer[jj]=='\n')
+				{
+					return EMPTY;
+				}
+				if(buffer[jj]==' ')	//detect if next position
+				{
+					buffer[jj]='\0';
+					sscanf(buffer,"%Lf",(*start)+ii);
+					jj=0;
+					ii++;
+					continue;
+				}
+				if(buffer[jj]=='<') //detect if last position
+				{
+					buffer[jj]='\0';
+					sscanf(buffer,"%Lf",(*start)+ii);
+					jj=0;
+					ii++;
+					break;
+				}
+				jj++;
+			}
+			return OK;
+		}
 		ptr=strstr(buffer,"<startPosition>");
 	}
-
-	sscanf(ptr+15,"%Lf",start);
+	*count=2;
+	*start=(long double*)realloc(*start,sizeof(long double)*(*count));
+	if(*start==NULL)
+	{
+		return MALLOC;
+	}
+	sscanf(ptr+15,"%Lf",*start);
 	fgets(buffer,255,fileIn);
 	ptr=strstr(buffer,"<endPosition>");
-	sscanf(ptr+13,"%Lf",stop);
-	return 0;
+	sscanf(ptr+13,"%Lf",*(start)+1);
+	
+	return OK;
 }
 
 /**
@@ -87,6 +154,7 @@ uint64_t countAngles(FILE* fileIn)
 	do
 	{
 		character=fgetc(fileIn);
+
 		//for each separating space
 		if(character==' ')
 		{
@@ -97,7 +165,7 @@ uint64_t countAngles(FILE* fileIn)
 		if(feof(fileIn))
 		{
 			//stop and return info about lack of intensities data
-			return 0;
+			return OK;
 		}
 	}
 	while(character!='<');	//is it end of data?
@@ -107,18 +175,19 @@ uint64_t countAngles(FILE* fileIn)
 /**
  * Calculate difference between angles.
  * @param fileIn - pointer to input file
- * @param start - pointer to long double with start angle value
- * @param stop - pointer to long double with stop angle value
+ * @param start  - pointer to long double table with start angle value
+ * @param count  - pointer to variable with number of counted intensities
  * @return long double with difference (should be >0), negative values mean error
  */ 
-long double getDtheta(FILE* fileIn, long double* start,long double* stop)
+long double getDtheta(FILE* fileIn, long double* start,uint64_t* count)
 {
 	//save offset for further rewind
 	long offset=ftell(fileIn);
-	
+
 	//Count number of individual angles to calculate single step difference (in .xrdml we get accurate initial and final angle data, single step info is too roughly rounded)
-	uint64_t count=countAngles(fileIn);	
-	if(count==0)
+	*count=countAngles(fileIn);	
+
+	if(*count==0)
 	{
 		fprintf(stderr,"No intensities in input file or broken input file.\n");
 		return -1.0;	//return number <0
@@ -126,8 +195,30 @@ long double getDtheta(FILE* fileIn, long double* start,long double* stop)
 	
 	//after this - rewind file to start of data
 	fseek(fileIn, offset, SEEK_SET);
-	
-	return (*stop-*start)/((long double) count);
+	long double tmp=(start[1]-start[0])/((long double) *count);
+	return tmp;
+}
+/**
+ * Calculate angles.
+ * @param start  - pointer to long double table with start angle value
+ * @param count  - pointer to variable with number of counted intensities
+ * @param Dtheta - difference between angles
+ * @return error code, ==0 - OK, !=0 - error
+ */ 
+int calculateAngles(long double** start,uint64_t* count,long double* Dtheta)
+{
+	long double start_=*start[0];
+	*start=(long double*)realloc(*start,sizeof(long double)*(*count));
+	if(!*start)
+	{
+		*start=NULL;
+		return MALLOC;
+	}
+	for(uint64_t ii=1;ii<*count;ii++)
+	{
+		*(*start+ii)=(start_)+((long double)ii)*(*Dtheta);
+	}
+	return OK;
 }
 
 /**
@@ -135,19 +226,19 @@ long double getDtheta(FILE* fileIn, long double* start,long double* stop)
  * @param fileIn - pointer to input file
  * @param fileOut - pointer to output file
  * @param separator - character that would be used as separator in output file
- * @param 
+ * @param count - number of angles
  */
-void convertData(FILE* fileIn,FILE* fileOut,char separator,long double* start,long double* Dtheta)
+void convertData(FILE* fileIn,FILE* fileOut,char separator,long double* start,uint64_t *count)
 {
 	//Print header in output file. Use CR+LF for widest OS support
 	fprintf(fileOut,"2theta%cintensity%c\ndegree%ccounts%c\r\n",separator,separator,separator,separator);
 	char character;
 	//While looping: count lines, if EOF detected - stop
-	for(uint64_t ii=0;!feof(fileIn);ii++)
+	for(uint64_t ii=0;!feof(fileIn)&&ii<*count;ii++)
 	{
 		//Print single line:
 		//Print angle with 0.8Lf precision 
-		fprintf(fileOut,"%0.8Lf%c",(*start)+((long double)ii)*(*Dtheta),separator);
+		fprintf(fileOut,"%0.8Lf%c",start[ii],separator);
 		do
 		{
 			//Just copy values from input (to avoid unnecessary conversion losses)

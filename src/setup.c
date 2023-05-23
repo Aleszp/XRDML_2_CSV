@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "messages.h"
 #include "setup.h"
@@ -161,10 +162,15 @@ char selectSeparator(int argc,char** argv,int optind)
  * @param fileIn - pointer to input file pointer
  * @param fileOut - pointer to output file pointer
  * @param errorCode - code to be returned
+ * @param start  - pointer to long double table with start angle value
  * @return errorCode (passed from parameter)
  **/
-int exitProgram(FILE** fileIn, FILE** fileOut,int errorCode)
+int exitProgram(FILE** fileIn, FILE** fileOut,int errorCode, long double* start)
 {
+	if(start!=NULL)
+	{
+		free(start);
+	}
 	fclose(*fileIn);
 	fclose(*fileOut);
 	return errorCode;
