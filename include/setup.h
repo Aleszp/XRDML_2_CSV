@@ -18,7 +18,7 @@
 		int handleStartup(int argc,char** argv,int* optind_,char* separator);
 		int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut);
 		char selectSeparator(int argc,char** argv,int optind);
-		int exitProgram(FILE** fileIn, FILE** fileOut,int errorCode);
+		int exitProgram(FILE** fileIn, FILE** fileOut,int errorCode, long double* start);
 
 	#ifdef __cplusplus
 	} //end of extern "C"

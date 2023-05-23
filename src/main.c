@@ -10,6 +10,7 @@
  */ 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "messages.h"
 #include "data.h"
@@ -37,7 +38,6 @@ int main(int argc,char** argv)
 	
 	FILE* fileIn;
 	FILE* fileOut;
-	
 	//Open input and output files
 	err=openFiles(argc,argv,optind,&fileIn,&fileOut);
 	if(err!=OK)
@@ -45,26 +45,34 @@ int main(int argc,char** argv)
 		return err;	//don't close files, as they were not opened yet (or fileIn was closed with openFiles function itself)
 	}
 	
-	long double start,stop,Dtheta;
-	err=getStartStop(fileIn,&start,&stop);
+	uint64_t count=2;
+	long double* start=(long double*)malloc(sizeof(long double)*(count));
+	
+	err=getStartStop(fileIn,&start,&count);
 	if(err!=OK)
 	{
 		fprintf(stderr,"Could not get start or stop angle. Is %s proper input file?\n",argv[argc-optind]);
-		return exitProgram(&fileIn,&fileOut,err);
+		return exitProgram(&fileIn,&fileOut,err,start);
 	}
-	
 	skipHeader(fileIn);
 	if(err!=OK)
 	{
-		return exitProgram(&fileIn,&fileOut,err);
-	}
-	
-	Dtheta=getDtheta(fileIn, &start,&stop);
-	if(Dtheta>0.0)	//if Dtheta is reasonable - convert data
-	{
-		convertData(fileIn,fileOut,separator,&start,&Dtheta);
-		return exitProgram(&fileIn,&fileOut,OK);
+		return exitProgram(&fileIn,&fileOut,err,start);
 	}
 
-	return exitProgram(&fileIn,&fileOut,NOINTENSITIES);
+	if(count==2)
+	{
+
+		long double Dtheta=getDtheta(fileIn, start,&count);
+		//fprintf(stderr,"7\n");
+		if(Dtheta<=0.0)	//if Dtheta is unreasonable - stop
+		{
+			return exitProgram(&fileIn,&fileOut,DTHETA,start);
+		}
+		//fprintf(stderr,"8\n");
+		calculateAngles(&start,&count,&Dtheta);
+		//fprintf(stderr,"9\n");
+	}
+	convertData(fileIn,fileOut,separator,start,&count);
+	return exitProgram(&fileIn,&fileOut,OK,start);
 }

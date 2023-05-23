@@ -17,11 +17,12 @@
 
 		#include <stdint.h>
 
-		int getStartStop(FILE* fileIn,long double* start,long double* stop);
+		int getStartStop(FILE* fileIn,long double** start,uint64_t* count);
 		int skipHeader(FILE* fileIn);
 		uint64_t countAngles(FILE* fileIn);
-		long double getDtheta(FILE* fileIn, long double* start,long double* stop);
-		void convertData(FILE* fileIn,FILE* fileOut,char separator,long double* start,long double* Dtheta);
+		long double getDtheta(FILE* fileIn, long double* start,uint64_t* count);
+		int calculateAngles(long double** start,uint64_t* count,long double* Dtheta);
+		void convertData(FILE* fileIn,FILE* fileOut,char separator,long double* start,uint64_t *count);
 
 	#ifdef __cplusplus
 	} //end of extern "C"
