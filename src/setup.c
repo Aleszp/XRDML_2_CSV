@@ -135,7 +135,8 @@ int openFiles(int argc,char** argv,int optind,FILE** fileIn, FILE** fileOut)
 char selectSeparator(int argc,char** argv,int optind)
 {
 	//Find last occurance od dot - this way file extention can be detected.
-	char* extention=strrchr(argv[argc-optind],'.');
+	char* extention=strrchr(argv[argc-optind+1],'.');
+
 	//If no dot could be found - no extention - fallback to comma separator
 	if(!extention)
 	{
